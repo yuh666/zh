@@ -4,8 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.Version;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 
 /**
@@ -108,6 +114,14 @@ public class JsonUtil {
     }
 
     public static void main(String[] args) throws IOException {
+        IKAnalyzer analyzer = new IKAnalyzer();
+        TokenStream tokenStream = analyzer.tokenStream("aa", new StringReader("我爱中华人民共和国"));
+        tokenStream.reset();
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        while(tokenStream.incrementToken()){
+            System.out.println(charTermAttribute.toString());
+        }
+
         HashMap<String, Integer> hash = new HashMap<String, Integer>();
         hash.put("key1", 1);
         hash.put("key2", 2);
