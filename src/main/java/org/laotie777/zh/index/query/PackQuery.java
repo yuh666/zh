@@ -7,10 +7,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.Version;
 import org.laotie777.zh.index.manager.IndexManager;
 
@@ -75,33 +72,131 @@ public class PackQuery {
         TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(key));
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         List<String> words = new ArrayList<>();
-        while(tokenStream.incrementToken()){
+        while (tokenStream.incrementToken()) {
             words.add(charTermAttribute.toString());
         }
         BooleanQuery query = new BooleanQuery();
         for (int i = 0; i < fields.length; i++) {
             BooleanQuery subQuery = new BooleanQuery();
             for (String word : words) {
-                subQuery.add(new TermQuery(new Term(fields[i],word)), BooleanClause.Occur.SHOULD);
+                subQuery.add(new TermQuery(new Term(fields[i], word)), BooleanClause.Occur.SHOULD);
             }
-            query.add(subQuery,occurs[i]);
+            query.add(subQuery, occurs[i]);
         }
         return query;
     }
 
     /**
      * 组合多喝查询
+     *
      * @param queries
      * @param occurs
      * @return
      */
-    public Query combineQuery(List<Query> queries, List<BooleanClause.Occur> occurs){
+    public Query combineQuery(List<Query> queries, List<BooleanClause.Occur> occurs) {
         BooleanQuery booleanQuery = new BooleanQuery();
         for (int i = 0; i < queries.size(); i++) {
-            booleanQuery.add(queries.get(i),occurs.get(i));
+            booleanQuery.add(queries.get(i), occurs.get(i));
         }
         return booleanQuery;
     }
+
+    /**
+     * 查询未分词的域 StringField
+     *
+     * @param key
+     * @param field
+     * @return
+     */
+    public Query getStringField(String key, String field) {
+        TermQuery termQuery = new TermQuery(new Term(field, key));
+        return termQuery;
+    }
+
+    /**
+     * 单个字段前缀查询
+     * @param key
+     * @param field
+     * @return
+     */
+    public Query getStartQuery(String key,String field){
+        return new PrefixQuery(new Term(field,key));
+    }
+
+    /**
+     * 组合多个域的前缀查询
+     * @param key
+     * @param fields
+     * @param occur
+     * @return
+     */
+    public Query getStartQuery(String key, String[] fields, BooleanClause.Occur occur){
+        ArrayList<Query> querys = new ArrayList<Query>();
+        ArrayList<BooleanClause.Occur> occurs = new ArrayList<BooleanClause.Occur>();
+        for (String field : fields) {
+            querys.add(getStartQuery(key, field));
+            occurs.add(occur);
+        }
+        return combineQuery(querys, occurs);
+    }
+
+    /**
+     * 组合多个域的前缀查询 关系为或者
+     * @param key
+     * @param fields
+     * @param occur
+     * @return
+     */
+    public Query getStartQuery(String key, String[] fields){
+       return getStartQuery(key,fields, BooleanClause.Occur.SHOULD);
+    }
+
+    /**
+     * 短语查询
+     * @param field
+     * @param key
+     * @param slop
+     * @return
+     */
+    public Query getPhraseQuery(String field,String key,int slop) throws IOException {
+        TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(key));
+        CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        PhraseQuery phraseQuery = new PhraseQuery();
+        phraseQuery.setSlop(slop);
+        while (tokenStream.incrementToken()) {
+            phraseQuery.add(new Term(field,charTermAttribute.toString()));
+        }
+        return phraseQuery;
+    }
+
+    /**
+     * 短语组合查询
+     * @param field
+     * @param key
+     * @param slop
+     * @return
+     */
+    public Query getPhraseQuery(String[] field, String key, int slop, BooleanClause.Occur occur) throws IOException {
+        ArrayList<Query> querys = new ArrayList<Query>();
+        ArrayList<BooleanClause.Occur> occurs = new ArrayList<BooleanClause.Occur>();
+        for (String s : field) {
+            querys.add(getPhraseQuery(s,key,slop));
+            occurs.add(occur);
+        }
+        return combineQuery(querys,occurs);
+    }
+
+    /**
+     * 短语组合查询
+     * @param field
+     * @param key
+     * @param slop
+     * @return
+     */
+    public Query getPhraseQuery(String[] field, String key, int slop) throws IOException {
+        return getPhraseQuery(field,key,slop, BooleanClause.Occur.SHOULD);
+    }
+
 
 
 }
