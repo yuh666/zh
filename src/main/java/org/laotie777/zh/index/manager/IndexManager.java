@@ -14,6 +14,7 @@ import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.util.Version;
 import org.laotie777.zh.index.bean.IndexBean;
 import org.laotie777.zh.index.bean.IndexConfig;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -177,7 +178,7 @@ public class IndexManager {
      * @param name
      * @return
      */
-    public IndexManager getIndexManagerByName(String name){
+    public static IndexManager getIndexManagerByName(String name){
         return LazyLoadManager.managers.get(name);
     }
 
@@ -212,6 +213,18 @@ public class IndexManager {
      */
     public int getIndexNum(){
         return indexWriter.numDocs();
+    }
+
+    /**
+     * 释放搜索资源
+     * @param searcher
+     */
+    public void release(IndexSearcher searcher){
+        try {
+            nrtManager.release(searcher);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
