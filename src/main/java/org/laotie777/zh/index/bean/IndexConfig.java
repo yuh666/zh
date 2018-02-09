@@ -1,4 +1,4 @@
-package org.laotie777.zh.index;
+package org.laotie777.zh.index.bean;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,7 +13,7 @@ public class IndexConfig {
     /**
      * 包装多个配置实体
      */
-    private Set<IndexBean> config;
+    private static Set<IndexBean> config;
 
     /**
      * 用时才加载的内部类 默认的写法
@@ -26,14 +26,14 @@ public class IndexConfig {
         }
     }
 
-    public Set<IndexBean> getConfig() {
+    public static Set<IndexBean> getConfig() {
         if(Objects.isNull(config)){
             config = LoayLoadIndexConfig.defaultConfig;
         }
         return config;
     }
 
-    public void setConfig(Set<IndexBean> config) {
-        this.config = config;
+    public static void setConfig(Set<IndexBean> config1) {
+        config = config1;
     }
 }

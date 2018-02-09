@@ -22,7 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<lucence.version>4.10.4</lucence.version>
+		<lucence.version>4.3.1</lucence.version>
 	</properties>
 
 	<dependencies>
@@ -110,7 +110,7 @@
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
 			<artifactId>lucene-highlighter</artifactId>
-			<version>3.0.1</version>
+			<version>4.3.1</version>
 		</dependency>
 
         <dependency>
@@ -124,6 +124,13 @@
             <artifactId>ikanalyzer</artifactId>
             <version>2012_u6</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queries</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
 
     </dependencies>
 

@@ -1,4 +1,4 @@
-package org.laotie777.zh.index;
+package org.laotie777.zh.index.bean;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.wltea.analyzer.lucene.IKAnalyzer;
@@ -26,6 +26,11 @@ public class IndexBean {
     private double maxIndexReopenGap = 0.60;
 
     /**
+     * 索引提交间隔
+     */
+    private double indexCommitGap = 0.60;
+
+    /**
      * 索引位置
      */
     private String indexPos = "./index/";
@@ -34,6 +39,14 @@ public class IndexBean {
      * 索引名称
      */
     private String indexName = "index";
+
+    public double getIndexCommitGap() {
+        return indexCommitGap;
+    }
+
+    public void setIndexCommitGap(double indexCommitGap) {
+        this.indexCommitGap = indexCommitGap;
+    }
 
     /**
      * 显示commit的细节
@@ -51,6 +64,8 @@ public class IndexBean {
     public double getMinIndexReopenGap() {
         return minIndexReopenGap;
     }
+
+
 
     public void setMinIndexReopenGap(double minIndexReopenGap) {
         this.minIndexReopenGap = minIndexReopenGap;
@@ -94,11 +109,12 @@ public class IndexBean {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
-        if (o == null || getClass() != o.getClass()) {return false;}
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         IndexBean indexBean = (IndexBean) o;
         return Double.compare(indexBean.minIndexReopenGap, minIndexReopenGap) == 0 &&
                 Double.compare(indexBean.maxIndexReopenGap, maxIndexReopenGap) == 0 &&
+                Double.compare(indexBean.indexCommitGap, indexCommitGap) == 0 &&
                 bprint == indexBean.bprint &&
                 Objects.equals(indexPos, indexBean.indexPos) &&
                 Objects.equals(indexName, indexBean.indexName);
@@ -107,7 +123,7 @@ public class IndexBean {
     @Override
     public int hashCode() {
 
-        return Objects.hash(minIndexReopenGap, maxIndexReopenGap, indexPos, indexName, bprint);
+        return Objects.hash(minIndexReopenGap, maxIndexReopenGap, indexCommitGap, indexPos, indexName, bprint);
     }
 
     @Override
@@ -116,9 +132,11 @@ public class IndexBean {
                 "analyzer=" + analyzer +
                 ", minIndexReopenGap=" + minIndexReopenGap +
                 ", maxIndexReopenGap=" + maxIndexReopenGap +
+                ", indexCommitGap=" + indexCommitGap +
                 ", indexPos='" + indexPos + '\'' +
                 ", indexName='" + indexName + '\'' +
                 ", bprint=" + bprint +
                 '}';
     }
+
 }
