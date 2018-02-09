@@ -1,10 +1,7 @@
 package org.laotie777.zh.index.operation;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.laotie777.zh.index.bean.ResultEntity;
 import org.laotie777.zh.index.manager.IndexManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +34,15 @@ public class NRTSearch {
      */
     public ResultEntity query(Query query, int start, int end, Sort sort) throws IOException {
         IndexSearcher indexSearcher = indexManager.getIndexSearcher();
-        TopDocs docs = indexSearcher.search(query, end);
+        TopDocs docs = indexSearcher.search(query, end,sort);
         ResultEntity resultEntity = new ResultEntity();
         resultEntity.setCount(docs.totalHits);
+        ScoreDoc[] scoreDocs = docs.scoreDocs;
         end = end > docs.totalHits ? docs.totalHits : end;
         ArrayList<Document> documents = new ArrayList<>();
-        return null;
+        for (int i = start; i < end; i++) {
+            documents.add(indexSearcher.doc(scoreDocs[i].doc));
+        }
+        return resultEntity;
     }
 }
