@@ -115,22 +115,24 @@ public class PackQuery {
 
     /**
      * 单个字段前缀查询
+     *
      * @param key
      * @param field
      * @return
      */
-    public Query getStartQuery(String key,String field){
-        return new PrefixQuery(new Term(field,key));
+    public Query getStartQuery(String key, String field) {
+        return new PrefixQuery(new Term(field, key));
     }
 
     /**
      * 组合多个域的前缀查询
+     *
      * @param key
      * @param fields
      * @param occur
      * @return
      */
-    public Query getStartQuery(String key, String[] fields, BooleanClause.Occur occur){
+    public Query getStartQuery(String key, String[] fields, BooleanClause.Occur occur) {
         ArrayList<Query> querys = new ArrayList<Query>();
         ArrayList<BooleanClause.Occur> occurs = new ArrayList<BooleanClause.Occur>();
         for (String field : fields) {
@@ -142,60 +144,164 @@ public class PackQuery {
 
     /**
      * 组合多个域的前缀查询 关系为或者
+     *
      * @param key
      * @param fields
      * @param occur
      * @return
      */
-    public Query getStartQuery(String key, String[] fields){
-       return getStartQuery(key,fields, BooleanClause.Occur.SHOULD);
+    public Query getStartQuery(String key, String[] fields) {
+        return getStartQuery(key, fields, BooleanClause.Occur.SHOULD);
     }
 
     /**
      * 短语查询
+     *
      * @param field
      * @param key
      * @param slop
      * @return
      */
-    public Query getPhraseQuery(String field,String key,int slop) throws IOException {
+    public Query getPhraseQuery(String field, String key, int slop) throws IOException {
         TokenStream tokenStream = analyzer.tokenStream("contents", new StringReader(key));
         CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         PhraseQuery phraseQuery = new PhraseQuery();
         phraseQuery.setSlop(slop);
         while (tokenStream.incrementToken()) {
-            phraseQuery.add(new Term(field,charTermAttribute.toString()));
+            phraseQuery.add(new Term(field, charTermAttribute.toString()));
         }
         return phraseQuery;
     }
 
     /**
      * 短语组合查询
+     *
      * @param field
      * @param key
      * @param slop
      * @return
      */
-    public Query getPhraseQuery(String[] field, String key, int slop, BooleanClause.Occur occur) throws IOException {
+    public Query getPhraseQuery(String[] fields, String key, int slop, BooleanClause.Occur occur) throws IOException {
         ArrayList<Query> querys = new ArrayList<Query>();
         ArrayList<BooleanClause.Occur> occurs = new ArrayList<BooleanClause.Occur>();
-        for (String s : field) {
-            querys.add(getPhraseQuery(s,key,slop));
+        for (String s : fields) {
+            querys.add(getPhraseQuery(s, key, slop));
             occurs.add(occur);
         }
-        return combineQuery(querys,occurs);
+        return combineQuery(querys, occurs);
     }
 
     /**
      * 短语组合查询
+     *
      * @param field
      * @param key
      * @param slop
      * @return
      */
-    public Query getPhraseQuery(String[] field, String key, int slop) throws IOException {
-        return getPhraseQuery(field,key,slop, BooleanClause.Occur.SHOULD);
+    public Query getPhraseQuery(String[] fields, String key, int slop) throws IOException {
+        return getPhraseQuery(fields, key, slop, BooleanClause.Occur.SHOULD);
     }
+
+
+    /**
+     * @param key
+     * @param field
+     * @return
+     * @Author:lulei
+     * @Description: 通配符检索 eg:getWildcardQuery("a*thor", "field")
+     */
+    public Query getWildcardQuery(String key, String field) {
+        if (key == null || key.length() < 1) {
+            return null;
+        }
+        return new WildcardQuery(new Term(field, key));
+    }
+
+    /**
+     * @param key
+     * @param fields
+     * @param occur
+     * @return
+     * @Author:lulei
+     * @Description: 通配符检索，域之间的关系为occur
+     */
+    public Query getWildcardQuery(String key, String[] fields, BooleanClause.Occur occur) {
+        if (key == null || key.length() < 1) {
+            return null;
+        }
+        ArrayList<Query> querys = new ArrayList<Query>();
+        ArrayList<BooleanClause.Occur> occurs = new ArrayList<BooleanClause.Occur>();
+        for (String field : fields) {
+            querys.add(getWildcardQuery(key, field));
+            occurs.add(occur);
+        }
+        return combineQuery(querys, occurs);
+    }
+
+    /**
+     * @param key
+     * @param fields
+     * @return
+     * @Author:lulei
+     * @Description: 通配符检索，域之间的关系为Occur.SHOULD
+     */
+    public Query getWildcardQuery(String key, String[] fields) {
+        return getWildcardQuery(key, fields, BooleanClause.Occur.SHOULD);
+    }
+
+    /**
+     * 字符串范围查询
+     * @param field
+     * @param start
+     * @param end
+     * @param includeStart
+     * @param includeEnd
+     * @return
+     */
+    public Query getStringRangeQuery(String field, String start, String end, boolean includeStart, boolean includeEnd) {
+        return TermRangeQuery.newStringRange(field, start, end, includeStart, includeEnd);
+    }
+
+    /**
+     * 整数范围查询
+     * @param field
+     * @param start
+     * @param end
+     * @param includeStart
+     * @param includeEnd
+     * @return
+     */
+    public Query getIntRangeQuery(String field, int start, int end, boolean includeStart, boolean includeEnd) {
+        return NumericRangeQuery.newIntRange(field,start,end,includeStart,includeEnd);
+    }
+
+    /**
+     * float范围查询
+     * @param field
+     * @param start
+     * @param end
+     * @param includeStart
+     * @param includeEnd
+     * @return
+     */
+    public Query getIntRangeQuery(String field, float start, float end, boolean includeStart, boolean includeEnd) {
+        return NumericRangeQuery.newFloatRange(field,start,end,includeStart,includeEnd);
+    }
+
+    /**
+     * double范围查询
+     * @param field
+     * @param start
+     * @param end
+     * @param includeStart
+     * @param includeEnd
+     * @return
+     */
+    public Query getIntRangeQuery(String field, double start, double end, boolean includeStart, boolean includeEnd) {
+        return NumericRangeQuery.newDoubleRange(field,start,end,includeStart,includeEnd);
+    }
+
 
 
 
