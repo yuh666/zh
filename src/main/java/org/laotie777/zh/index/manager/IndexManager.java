@@ -200,6 +200,14 @@ public class IndexManager {
     }
 
     /**
+     * indexWriter
+     * @return
+     */
+    public IndexWriter getIndexWriter() {
+        return indexWriter;
+    }
+
+    /**
      * 分析器
      * @return
      */
