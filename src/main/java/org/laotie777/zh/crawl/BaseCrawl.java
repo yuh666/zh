@@ -29,9 +29,9 @@ import java.util.*;
  * @Date Created in 上午10:05 2018/2/10
  * @Description 爬虫基类 定义Http基本连接信息
  */
-public class CrawlBase {
+public abstract class BaseCrawl {
 
-    private static Logger logger = Logger.getLogger(CrawlBase.class);
+    private static Logger logger = Logger.getLogger(BaseCrawl.class);
 
     /**
      * 链接源代码
@@ -235,6 +235,27 @@ public class CrawlBase {
     }
 
     /**
+     * 无头GET或者POST
+     * @param url
+     * @param params
+     * @param getPost
+     * @param charset
+     * @return
+     */
+    public boolean execute(String url, Map<String, String> params, String getPost, String charset) {
+        if (getPost == null) {
+            return false;
+        }
+        getPost = getPost.toLowerCase();
+        if ("get".equals(getPost)) {
+            return executeByGet(url, params, charset, null);
+        } else if ("post".equals(getPost)) {
+            return executeByPost(url, params, charset, null);
+        }
+        return false;
+    }
+
+    /**
      * @param url
      * @param params
      * @param charset 参数编码方式
@@ -262,6 +283,21 @@ public class CrawlBase {
     public boolean executeByGet(String url, Map<String, String> params, String charset, Map<String, String> headers) {
         HttpGet method = createGetMethod(url, charset,params , headers);
         return execute(method);
+    }
+
+    /**
+     * 无头无参数GET
+     * @param url
+     * @param charset
+     * @return
+     */
+    public boolean executeByGet(String url,  String charset) {
+        HttpGet method = createGetMethod(url, charset,null , null);
+        return execute(method);
+    }
+
+    public String getPageSourceCode() {
+        return pageSourceCode;
     }
 
 }
