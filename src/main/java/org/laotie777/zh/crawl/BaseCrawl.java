@@ -56,7 +56,7 @@ public abstract class BaseCrawl {
     /**
      * 网页默认编码方式
      */
-    private static String ISO_8859_1 = "iso-8859-1";
+    private static String ISO_8859_1 = "UTF-8";
     /**
      * 连接池连接数
      */
@@ -197,8 +197,8 @@ public abstract class BaseCrawl {
                 }
                 pageSourceCode = sb.toString();
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(pageSourceCode.getBytes(ISO_8859_1));
-                String streamCharset = CharsetUtil.getStreamCharset(byteArrayInputStream, ISO_8859_1);
-                pageSourceCode = new String(pageSourceCode.getBytes(ISO_8859_1), streamCharset);
+                //String streamCharset = CharsetUtil.getStreamCharset(byteArrayInputStream, ISO_8859_1);
+                //pageSourceCode = new String(pageSourceCode.getBytes(ISO_8859_1), streamCharset);
                 byteArrayInputStream.close();
                 content.close();
                 return true;
