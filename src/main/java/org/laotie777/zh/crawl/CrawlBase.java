@@ -210,4 +210,58 @@ public class CrawlBase {
         return false;
     }
 
+    /**
+     * @param url
+     * @param params
+     * @param getPost
+     * @param charset 参数编码方式
+     * @param headers
+     * @return
+     * @Date:2016-11-15
+     * @Author:lulei
+     * @Description: 访问url
+     */
+    public boolean execute(String url, Map<String, String> params, String getPost, String charset, Map<String, String> headers) {
+        if (getPost == null) {
+            return false;
+        }
+        getPost = getPost.toLowerCase();
+        if ("get".equals(getPost)) {
+            return executeByGet(url, params, charset, headers);
+        } else if ("post".equals(getPost)) {
+            return executeByPost(url, params, charset, headers);
+        }
+        return false;
+    }
+
+    /**
+     * @param url
+     * @param params
+     * @param charset 参数编码方式
+     * @param headers
+     * @return
+     * @Date:2016-11-15
+     * @Author:lulei
+     * @Description: post请求
+     */
+    public boolean executeByPost(String url, Map<String, String> params, String charset, Map<String, String> headers) {
+        HttpPost method = createPostMethod(url, charset,params , headers);
+        return execute(method);
+    }
+
+    /**
+     * @param url
+     * @param params
+     * @param charset 参数编码方式
+     * @param headers
+     * @return
+     * @Date:2016-11-15
+     * @Author:lulei
+     * @Description: get请求
+     */
+    public boolean executeByGet(String url, Map<String, String> params, String charset, Map<String, String> headers) {
+        HttpGet method = createGetMethod(url, charset,params , headers);
+        return execute(method);
+    }
+
 }
